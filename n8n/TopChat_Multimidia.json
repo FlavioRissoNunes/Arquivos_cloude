@@ -1,0 +1,1169 @@
+{
+  "name": "TopChat Oficial Multimidia",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "zoe",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        352,
+        160
+      ],
+      "id": "81894d96-a854-4240-8a3c-7e980b6ff2b1",
+      "name": "Webhook",
+      "webhookId": "50609fda-1dc8-4bed-9fd2-bb619680ae8e"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').item.json.body.sender }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2028,
+        672
+      ],
+      "id": "d5d5f447-0bbd-4e88-97a4-082e8b730ead",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "bcbf3899-68e8-410a-aac6-4d7053e601ac",
+              "leftValue": "={{ $json.body.fromMe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "36815edb-63c6-4592-bcce-4c418059d7af",
+              "leftValue": "={{ $json.body.ticketData.userId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8caa4f12-7504-4dd0-a62a-476deec6a85e",
+              "leftValue": "={{ $json.body.acao }}",
+              "rightValue": "from_internal",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        160
+      ],
+      "id": "73b134e8-de77-41b3-8f33-4e57dd08559c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "194fa418-2bd9-4eaf-9b5d-f9163a8d830f",
+              "leftValue": "={{ $json.body?.mensagem?.body ?? $json.body?.mensagem?.[0]?.text ?? '' }}",
+              "rightValue": "#zoe",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        400
+      ],
+      "id": "bf99439f-8882-4817-9142-4fbf7ac07359",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Coloca o Cliente para a fila do Atendimento Financeiro ",
+        "method": "POST",
+        "url": "https://api.topchat.com.br/api/messages/flowbuilderStart",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue",
+              "value": "=Bearer {{ $('Webhook').item.json.body.token_origin }}"
+            },
+            {
+              "name": "Content-Type",
+              "valueProvider": "fieldValue",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "number",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Webhook').item.json.body.sender }}"
+            },
+            {
+              "name": "queueId",
+              "valueProvider": "fieldValue",
+              "value": "39"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        2604,
+        816
+      ],
+      "id": "809ff477-c1ad-45ef-a3b4-2fc6e6152805",
+      "name": "Fila Financeiro"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Coloca o Cliente para a fila do suporte técnico ",
+        "method": "POST",
+        "url": "https://api.topchat.com.br/api/messages/flowbuilderStart",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue",
+              "value": "=Bearer {{ $('Webhook').item.json.body.token_origin }}"
+            },
+            {
+              "name": "Content-Type",
+              "valueProvider": "fieldValue",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "number",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Webhook').item.json.body.sender }}"
+            },
+            {
+              "name": "queueId",
+              "valueProvider": "fieldValue",
+              "value": "41"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        2364,
+        832
+      ],
+      "id": "531c12f2-5ac8-47d4-a3d1-5b4c5fe12e6a",
+      "name": "Fila Suporte"
+    },
+    {
+      "parameters": {
+        "toolDescription": "recupera dados do cliente, com endereço, status de conexão, boletos em aberto, dia de vencimento, senha do aplicativo da tv, endereço , localizaão",
+        "method": "POST",
+        "url": "https://www.g2netsul.com.br/apin8n/AchaCliente.asp",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "codigocliente",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "numerotelefone",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "cpfcnpj",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "email",
+              "valueProvider": "modelOptional"
+            }
+          ]
+        },
+        "optimizeResponse": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        3100,
+        400
+      ],
+      "id": "17e89458-e661-456a-b5a7-e15fddcc4b5d",
+      "name": "Dados Cliente",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "toolDescription": "Envia o boleto para o numero do contato que esta interagindo.\nPara enviar pode passar o codigocliente ou cpfcnpj do cliente nos parâmetros.  \nLembre que o codigocliente sempre vai ter menos que 9 digitos e o cpfcnpj vai sempre ter mais de 10 digitos, e so mente numeros, cpfcnpj se refere ao cpf para pessoa física e cnpj para pessoa jurídica.\nNão use os dois paramentros. codigocliente e cpfcnpj na mesma consulta.",
+        "method": "POST",
+        "url": "https://www.g2netsul.com.br/apin8n/EnviaBoletoCliente2aViaOficial.asp",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "token",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Webhook').item.json.body.ticketData.whatsapp.token }}"
+            },
+            {
+              "name": "numeroenvio",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Webhook').item.json.body.sender }}"
+            },
+            {
+              "name": "codigocliente",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "cpfcnpj",
+              "valueProvider": "modelOptional"
+            }
+          ]
+        },
+        "optimizeResponse": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        2812,
+        720
+      ],
+      "id": "58a91d1b-e58f-4039-812e-75c72ab82db5",
+      "name": "Envia Boleto",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "toolDescription": "Cria um chamado tecnico ou se ja existir inclui a mensagem no chamado ja existente,\nTem que passar o cpfcnpj\ntem que passar descricaochamado com o texto sobre oque é o chamado ou oque se quer incluir",
+        "method": "POST",
+        "url": "https://www.g2netsul.com.br/apin8n/AbreOuAdicionaTextoChamado.asp",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "cpfcnpj"
+            },
+            {
+              "name": "token",
+              "valueProvider": "fieldValue",
+              "value": "enviog2"
+            },
+            {
+              "name": "numeroenvio",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Webhook').item.json.body.sender }}"
+            },
+            {
+              "name": "descricaochamado"
+            }
+          ]
+        },
+        "optimizeResponse": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        2988,
+        608
+      ],
+      "id": "27cbe618-e8e6-4f26-96c2-b635d0213903",
+      "name": "CriaOuIncluiTextoChamadoTecnico",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "toolDescription": "Coloca o Cliente para a fila do Atendimento do Comercial ",
+        "method": "POST",
+        "url": "https://api.topchat.com.br/api/messages/flowbuilderStart",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue",
+              "value": "=Bearer {{ $('Webhook').item.json.body.token_origin }}"
+            },
+            {
+              "name": "Content-Type",
+              "valueProvider": "fieldValue",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "number",
+              "valueProvider": "fieldValue",
+              "value": "={{ $('Webhook').item.json.body.sender }}"
+            },
+            {
+              "name": "queueId",
+              "valueProvider": "fieldValue",
+              "value": "83"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        2156,
+        768
+      ],
+      "id": "62000828-948d-4f98-a31a-7bf7cc22eb9e",
+      "name": "Fila Comercial"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.topchat.com.br/api/messages/sendOfficialData",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Webhook').item.json.body.token_origin }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $('Webhook').item.json.body.sender }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "whatsappId",
+              "value": "={{ $('Webhook').item.json.body.defaultWhatsapp_x }}"
+            },
+            {
+              "name": "openTicket",
+              "value": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2892,
+        128
+      ],
+      "id": "2f378e12-c5b2-4b53-9353-0745c3ab2c27",
+      "name": "Envia Chat"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.mensagemFinal }}",
+        "options": {
+          "systemMessage": "=# IDENTIDADE\nVocê é Zoe, atendente virtual da G2Net Sul (fibra óptica).\nSua missão: Triagem eficiente, suporte nível 1 e direcionamento correto.\n\n# DIRETRIZES DE PERSONALIDADE (TONE OF VOICE)\n- **Empatia:** Se o cliente estiver frustrado, use uma frase curta de validação antes de prosseguir (ex: \"Entendo, isso é chato mesmo. 😊\").\n- **Concisão:** Máximo 15 palavras por frase. Parágrafos curtos.\n- **Simpatia:** Use emojis (😊) para suavizar o tom.\n- **Linguagem:** Simples, humana, sem \"tecno-bê-a-bá\".\n- **Proatividade:** Nunca peça para aguardar. Já dê a informação ou a solução.\n\n# 🚨 REGRAS CRÍTICAS DE EXECUÇÃO (TOOL-FIRST)\n\n1. **Prioridade de Tool:** Se a intenção do usuário requer uma ação (consultar dados, transferir, abrir chamado), sua **única** saída deve ser o uso da Tool correspondente. Não escreva texto explicando que vai fazer, apenas faça.\n2. **Confirmação de Transferência:** Após a execução bem-sucedida de uma tool de fila, sua resposta final ao cliente deve ser ESTRITAMENTE uma das frases abaixo:\n\n| Ação Executada | Resposta OBRIGATÓRIA ao Cliente |\n| :--- | :--- |\n| Transferiu p/ Comercial | \"✅ Pronto! Já te transferi para o Comercial. 😊\" |\n| Transferiu p/ Suporte | \"✅ Pronto! Já te transferi para um atendente do Suporte Técnico. 😊\" |\n| Transferiu p/ Financeiro | \"✅ Pronto! Já te transferi para o Financeiro. 😊\" |\n| Transferiu p/ Outros | \"✅ Pronto! Já te transferi para análise. 😊\" |\n\n# FLUXOS DE ATENDIMENTO\n\n## 1. INÍCIO E SAUDAÇÃO\n- Se o cliente disse apenas \"Oi/Olá\": Responda: \"Olá! Como eu posso te ajudar? 😊\"\n- Se o cliente já relatou o problema: **NÃO** pergunte como ajudar. Responda: \"Oi! Entendi. Vou verificar isso agora. 😊\" e inicie a triagem.\n - Se o cliente disser ja esta pago Oriente autodesbloqueio no site https://www.g2netsul.com.br/  e escolher a área do cliente. \n- Se o cliente já informar o CPF OU CNPJ : **NÃO** pergunte como ajudar. Responda: \"Oi! Entendi. Vou verificar seu cadastro agora. 😊\" e inicie  dando inforações sobre Boletos em aberto.\n\n## 2. IDENTIFICAÇÃO (CPF/CNPJ)\n- Se precisa de dados e não tem: Peça CPF ou CNPJ.\n- **Ação:** Limpe a formatação (pontos/traços). Use a tool `Dados Cliente`.\n- **Conflito:** Se houver múltiplos cadastros, mostre os endereços e peça para escolher.\n- **Memória:** Uma vez identificado, use sempre o `codigoCliente` para as próximas tools (priorize-o sobre o CPF).\n\n## 3. SUPORTE TÉCNICO (Diagnóstico)\nSempre consulte os dados do cliente antes de responder.\n\n### A. Análise de Status (Cadastro)\n- **Status \"B\" (Bloqueio Financeiro):**\n  - Cheque boletos (>30 dias). \n  - Oriente pegar boleto no site https://www.g2netsul.com.br/  e escolher a área do cliente.\n  - Se pagou: Oriente autodesbloqueio no site https://www.g2netsul.com.br/  e escolher a área do cliente.\n  - Se não resolver: Tool `Fila Financeiro`.\n- **Status \"A\" ou \"C\" (Admin/Cancelado):**\n  - Tool `Fila Financeiro`.\n- **Chamado Já Aberto:**\n  - Resuma o andamento.\n  - Se for apenas informação nova: Tool `CriaOuIncluiTextoChamadoTecnico` -> Avise: \"✅ Atualizei seu chamado técnico com essa informação. 😊\".\n  - Se o cliente quer falar com humano: Tool `Fila Suporte`.\n\n### B. Diagnóstico Técnico (Status Normal)\n1. **Massiva Confirmada (situacao_tecnica_localidade):**\n   - Tool `CriaOuIncluiTextoChamadoTecnico` (registrar ciência).\n   - Resposta: \"Detectamos um problema externo na região que já estamos atuando. 😊\"\n2. **IP Bloqueado (169.x, 172.x, 10.197.x):**\n   - Peça para desligar/ligar o roteador (aguardar 30s desligado).\n3. **Desconectado/Offline:**\n   - Peça para desligar/ligar roteador.\n   - Verifique cabos (sem forçar).\n   - *Nunca mande resetar.*\n4. **Lentidão:**\n   - Teste em outros aparelhos/sites.\n   - Explique sobre sinal Wi-Fi (distância/barreiras).\n\n### C. Desfecho Suporte\n- Se não resolveu ou cliente pede visita:\n  - Tool `CriaOuIncluiTextoChamadoTecnico` (Resuma o problema).\n  - Resposta: \"✅ Pronto! Já registrei sua solicitação no chamado. Um Atendente continuará por aqui. 😊\" (Não agende data/hora).\n- Troca de Senha/Configuração: Tool `Fila Suporte`.\n\n## 4. COMERCIAL (Vendas/Planos)\n- Interesse em Planos (Fibra ou Chip):\n  - Tool `Fila Comercial`.\n- Upgrade/Novos serviços:\n  - Tool `Fila Comercial`.\n\n## 5. FINANCEIRO\n- **Validação:** Sempre reconfirme CPF/CNPJ se o assunto mudou para financeiro.\n- **Boletos:** Se houver boleto, chame a tool 'Envia Boleto' passando como paramentro o CPF/CNPJ do cliente apos executar esse passo.  \n -Oriente o cliente que no site tambem é possivel fazer essa consulta.  Site https://www.g2netsul.com.br/  pode escolher a área do cliente.\n- **REGRA ESPECIAL (Códigos 35, 40, 41):**\n  - Se `CodigoRepresentante` for 35, 40 ou 41 e não achar boleto: **NÃO** diga que não achou.\n  - Ação Imediata: Tool `Fila Financeiro`.\n- **Autodesbloqueio:** Só ofereça se tiver apenas 1 fatura em atraso (>52 dias). que pode ser feito tambem pelo site.\n\n# RESTRIÇÕES FINAIS\n- **NUNCA** invente dados ou datas de visitas.\n- **NUNCA** passe informações internas (como \"CodigoRepresentante\" ou \"plano do cliente e dados técnico detalhado\").\n- **SEMPRE** que usar uma Tool de Filas, encerre com a frase fixa correspondente.\n\n# MENSAGENS DE MÍDIA\n- \"[Áudio do cliente]\": é a transcrição do que o cliente falou. Responda normalmente.\n- \"[Imagem do cliente]\": é a descrição da imagem (ex: print de erro, luz do roteador, boleto). Use no diagnóstico.\n- \"[Documento do cliente]\": é o texto extraído do arquivo. Use o que for relevante (ex: comprovante de pagamento → oriente autodesbloqueio ou Fila Financeiro).\n- Se não conseguiu ler a mídia, peça gentilmente para o cliente escrever. 😊"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2300,
+        160
+      ],
+      "id": "78753100-99fa-45f8-8d8f-c58e2731133d",
+      "name": "ZOE",
+      "executeOnce": false,
+      "alwaysOutputData": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2140,
+        368
+      ],
+      "id": "4f52d28c-1156-4e36-ba93-7d54c76f7216",
+      "name": "Cerebro MAIN",
+      "notesInFlow": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "EQFz12k2zLCm8m7p",
+          "name": "OpenAI ZOE"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "82a0605c-7c62-47dc-a804-9cd6ad8e7a7f",
+              "leftValue": "={{ $json.body.acao }}",
+              "rightValue": "from_internal",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        176
+      ],
+      "id": "4e49dd46-d11b-4f20-bc6e-a99ec053045e",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Identifica o tipo da mensagem recebida do TopChat\nreturn $input.all().map((item, i) => {\n  const b = item.json.body || {};\n  const m = Array.isArray(b.mensagem) ? (b.mensagem[0] || {}) : (b.mensagem || {});\n  const t = String(m.mediaType || m.type || m.mimetype || '').toLowerCase();\n\n  let tipo = 'texto';\n  if (/audio|ptt|voice/.test(t)) tipo = 'audio';\n  else if (/image|sticker/.test(t)) tipo = 'imagem';\n  else if (/document|application|pdf/.test(t)) tipo = 'documento';\n\n  let url = m.mediaUrl || m.url || '';\n  if (url && !url.startsWith('http')) url = 'https://api.topchat.com.br/public/' + url;\n  if (!url) tipo = 'texto';\n\n  const texto = m.body || m.text || m.caption || '';\n  return { json: { tipo, url, texto }, pairedItem: i };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        160
+      ],
+      "id": "bc3a6eb8-db40-465c-aa17-e5b851bd2548",
+      "name": "Normaliza Entrada"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "100c34d1-f57e-4407-9c0c-69d201c4a91e",
+                    "leftValue": "={{ $json.tipo }}",
+                    "rightValue": "texto",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "texto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5adf7ed9-dcc6-47a8-a166-59cad4ff4ee0",
+                    "leftValue": "={{ $json.tipo }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9c623bee-aac8-407a-9f36-d6feeb3c8a50",
+                    "leftValue": "={{ $json.tipo }}",
+                    "rightValue": "imagem",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "imagem"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cd75739d-3858-4deb-95f0-fb9faf17629e",
+                    "leftValue": "={{ $json.tipo }}",
+                    "rightValue": "documento",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "documento"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": 0
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1260,
+        140
+      ],
+      "id": "b2622aa3-8243-4321-ab02-b2a912fa4832",
+      "name": "Router"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0c1a3a36-5d5a-4d23-ab0c-fc4232cc1663",
+              "name": "mensagemFinal",
+              "value": "={{ $json.texto }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1940,
+        -160
+      ],
+      "id": "6dd81474-46b1-4fd1-b70b-105c8576e72e",
+      "name": "Msg Texto"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        0
+      ],
+      "id": "9f069094-ee55-4fb1-babd-8cb09725d9c4",
+      "name": "Baixa Audio"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "pt"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1720,
+        0
+      ],
+      "id": "b02762f1-c7b1-43c5-bed8-5144542192c8",
+      "name": "Transcreve Audio",
+      "credentials": {
+        "openAiApi": {
+          "id": "EQFz12k2zLCm8m7p",
+          "name": "OpenAI ZOE"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "065c17be-3282-4cdd-ac37-6a73138e2431",
+              "name": "mensagemFinal",
+              "value": "=[Áudio do cliente]: {{ $json.text || '(não consegui entender o áudio)' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1940,
+        0
+      ],
+      "id": "b30e0b23-454b-4fa0-842b-29450890155e",
+      "name": "Msg Audio"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        160
+      ],
+      "id": "9a709a30-f5fe-4613-a08f-43c512aca276",
+      "name": "Baixa Imagem"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "Descreva objetivamente esta imagem enviada por um cliente de provedor de internet. Se houver texto (erro, boleto, comprovante, tela), transcreva os dados principais. Se for equipamento, informe luzes e cores visíveis.",
+        "inputType": "base64",
+        "options": {
+          "detail": "auto"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1720,
+        160
+      ],
+      "id": "d8746ca5-221e-4342-86f3-cffd62075907",
+      "name": "Analisa Imagem",
+      "credentials": {
+        "openAiApi": {
+          "id": "EQFz12k2zLCm8m7p",
+          "name": "OpenAI ZOE"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "53b40c30-5d2c-4a26-af29-07193e79309e",
+              "name": "mensagemFinal",
+              "value": "=[Imagem do cliente]: {{ $json.content || $json.text || '(não consegui ver a imagem)' }}{{ $('Normaliza Entrada').item.json.texto ? '\\nLegenda: ' + $('Normaliza Entrada').item.json.texto : '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1940,
+        160
+      ],
+      "id": "ed2a41bd-6116-488d-8015-72c64e7776c5",
+      "name": "Msg Imagem"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1500,
+        320
+      ],
+      "id": "d2f1906a-4f20-480f-a91d-1782c33c27e5",
+      "name": "Baixa Documento"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        320
+      ],
+      "id": "dbd7e9bf-e5a2-49aa-a184-5814c30e1bb8",
+      "name": "Le PDF",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d5f6e614-e43b-4eae-96ae-1d3ad3a216cd",
+              "name": "mensagemFinal",
+              "value": "=[Documento do cliente]: {{ ($json.text || '(não consegui ler o documento, só leio PDF)').slice(0, 6000) }}{{ $('Normaliza Entrada').item.json.texto ? '\\nLegenda: ' + $('Normaliza Entrada').item.json.texto : '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1940,
+        320
+      ],
+      "id": "f83fbd14-f1e8-41ec-aeda-9dcb52c8c0a9",
+      "name": "Msg Documento"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "ZOE",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Normaliza Entrada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Normaliza Entrada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila Financeiro": {
+      "ai_tool": [
+        [
+          {
+            "node": "ZOE",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila Suporte": {
+      "ai_tool": [
+        [
+          {
+            "node": "ZOE",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dados Cliente": {
+      "ai_tool": [
+        [
+          {
+            "node": "ZOE",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CriaOuIncluiTextoChamadoTecnico": {
+      "ai_tool": [
+        [
+          {
+            "node": "ZOE",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fila Comercial": {
+      "ai_tool": [
+        [
+          {
+            "node": "ZOE",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ZOE": {
+      "main": [
+        [
+          {
+            "node": "Envia Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cerebro MAIN": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "ZOE",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envia Boleto": {
+      "ai_tool": [
+        [
+          {
+            "node": "ZOE",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliza Entrada": {
+      "main": [
+        [
+          {
+            "node": "Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router": {
+      "main": [
+        [
+          {
+            "node": "Msg Texto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Baixa Audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Baixa Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Baixa Documento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixa Audio": {
+      "main": [
+        [
+          {
+            "node": "Transcreve Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcreve Audio": {
+      "main": [
+        [
+          {
+            "node": "Msg Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixa Imagem": {
+      "main": [
+        [
+          {
+            "node": "Analisa Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analisa Imagem": {
+      "main": [
+        [
+          {
+            "node": "Msg Imagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixa Documento": {
+      "main": [
+        [
+          {
+            "node": "Le PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Le PDF": {
+      "main": [
+        [
+          {
+            "node": "Msg Documento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Msg Texto": {
+      "main": [
+        [
+          {
+            "node": "ZOE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Msg Audio": {
+      "main": [
+        [
+          {
+            "node": "ZOE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Msg Imagem": {
+      "main": [
+        [
+          {
+            "node": "ZOE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Msg Documento": {
+      "main": [
+        [
+          {
+            "node": "ZOE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "tags": []
+}
