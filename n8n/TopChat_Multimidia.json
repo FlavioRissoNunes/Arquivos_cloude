@@ -20,7 +20,7 @@
     {
       "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Webhook').item.json.body.sender }}"
+        "sessionKey": "={{ $('Webhook').first().json.body.sender }}"
       },
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
@@ -129,7 +129,7 @@
             {
               "name": "Authorization",
               "valueProvider": "fieldValue",
-              "value": "=Bearer {{ $('Webhook').item.json.body.token_origin }}"
+              "value": "=Bearer {{ $('Webhook').first().json.body.token_origin }}"
             },
             {
               "name": "Content-Type",
@@ -144,7 +144,7 @@
             {
               "name": "number",
               "valueProvider": "fieldValue",
-              "value": "={{ $('Webhook').item.json.body.sender }}"
+              "value": "={{ $('Webhook').first().json.body.sender }}"
             },
             {
               "name": "queueId",
@@ -174,7 +174,7 @@
             {
               "name": "Authorization",
               "valueProvider": "fieldValue",
-              "value": "=Bearer {{ $('Webhook').item.json.body.token_origin }}"
+              "value": "=Bearer {{ $('Webhook').first().json.body.token_origin }}"
             },
             {
               "name": "Content-Type",
@@ -189,7 +189,7 @@
             {
               "name": "number",
               "valueProvider": "fieldValue",
-              "value": "={{ $('Webhook').item.json.body.sender }}"
+              "value": "={{ $('Webhook').first().json.body.sender }}"
             },
             {
               "name": "queueId",
@@ -257,12 +257,12 @@
             {
               "name": "token",
               "valueProvider": "fieldValue",
-              "value": "={{ $('Webhook').item.json.body.ticketData.whatsapp.token }}"
+              "value": "={{ $('Webhook').first().json.body.ticketData.whatsapp.token }}"
             },
             {
               "name": "numeroenvio",
               "valueProvider": "fieldValue",
-              "value": "={{ $('Webhook').item.json.body.sender }}"
+              "value": "={{ $('Webhook').first().json.body.sender }}"
             },
             {
               "name": "codigocliente",
@@ -305,7 +305,7 @@
             {
               "name": "numeroenvio",
               "valueProvider": "fieldValue",
-              "value": "={{ $('Webhook').item.json.body.sender }}"
+              "value": "={{ $('Webhook').first().json.body.sender }}"
             },
             {
               "name": "descricaochamado"
@@ -335,7 +335,7 @@
             {
               "name": "Authorization",
               "valueProvider": "fieldValue",
-              "value": "=Bearer {{ $('Webhook').item.json.body.token_origin }}"
+              "value": "=Bearer {{ $('Webhook').first().json.body.token_origin }}"
             },
             {
               "name": "Content-Type",
@@ -350,7 +350,7 @@
             {
               "name": "number",
               "valueProvider": "fieldValue",
-              "value": "={{ $('Webhook').item.json.body.sender }}"
+              "value": "={{ $('Webhook').first().json.body.sender }}"
             },
             {
               "name": "queueId",
@@ -378,7 +378,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "=Bearer {{ $('Webhook').item.json.body.token_origin }}"
+              "value": "=Bearer {{ $('Webhook').first().json.body.token_origin }}"
             },
             {
               "name": "Content-Type",
@@ -391,7 +391,7 @@
           "parameters": [
             {
               "name": "number",
-              "value": "={{ $('Webhook').item.json.body.sender }}"
+              "value": "={{ $('Webhook').first().json.body.sender }}"
             },
             {
               "name": "text",
@@ -399,7 +399,7 @@
             },
             {
               "name": "whatsappId",
-              "value": "={{ $('Webhook').item.json.body.defaultWhatsapp_x }}"
+              "value": "={{ $('Webhook').first().json.body.defaultWhatsapp_x }}"
             },
             {
               "name": "openTicket",
@@ -500,7 +500,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Identifica o tipo da mensagem recebida do TopChat\nreturn $input.all().map((item, i) => {\n  const b = item.json.body || {};\n  const m = Array.isArray(b.mensagem) ? (b.mensagem[0] || {}) : (b.mensagem || {});\n  const t = String(m.mediaType || m.type || m.mimetype || '').toLowerCase();\n\n  let tipo = 'texto';\n  if (/audio|ptt|voice/.test(t)) tipo = 'audio';\n  else if (/image|sticker/.test(t)) tipo = 'imagem';\n  else if (/document|application|pdf/.test(t)) tipo = 'documento';\n\n  let url = m.mediaUrl || m.url || '';\n  if (url && !url.startsWith('http')) url = 'https://api.topchat.com.br/public/' + url;\n  if (!url) tipo = 'texto';\n\n  const texto = m.body || m.text || m.caption || '';\n  return { json: { tipo, url, texto }, pairedItem: i };\n});"
+        "jsCode": "// Identifica o tipo da mensagem recebida do TopChat (WhatsApp Meta)\nconst b = $('Webhook').first().json.body || {};\nconst m = Array.isArray(b.mensagem) ? (b.mensagem[0] || {}) : (b.mensagem || {});\nconst msg = m.originalData?.entry?.[0]?.changes?.[0]?.value?.messages?.[0] || {};\nconst t = String(m.type || msg.type || m.mediaType || '').toLowerCase();\nconst midia = msg[t] || {};\n\nlet tipo = 'texto';\nif (t === 'audio' || t === 'voice') tipo = 'audio';\nelse if (t === 'image' || t === 'sticker') tipo = 'imagem';\nelse if (t === 'document') tipo = 'documento';\n\nconst url = midia.url || m.mediaUrl || '';\nif (!url) tipo = 'texto';\n\nconst texto = (typeof m.text === 'string' ? m.text : m.text?.body) || m.body || msg.text?.body || midia.caption || '';\nconst token = b.ticketData?.whatsapp?.metaAccessToken || '';\n\nreturn [{ json: { tipo, url, texto, token } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -508,7 +508,7 @@
         1040,
         160
       ],
-      "id": "bc3a6eb8-db40-465c-aa17-e5b851bd2548",
+      "id": "a82e6f6a-c1c6-4716-9510-e2d231dd7977",
       "name": "Normaliza Entrada"
     },
     {
@@ -525,7 +525,7 @@
                 },
                 "conditions": [
                   {
-                    "id": "100c34d1-f57e-4407-9c0c-69d201c4a91e",
+                    "id": "2014c130-fcc0-4257-baa6-fd951fa61bbd",
                     "leftValue": "={{ $json.tipo }}",
                     "rightValue": "texto",
                     "operator": {
@@ -549,7 +549,7 @@
                 },
                 "conditions": [
                   {
-                    "id": "5adf7ed9-dcc6-47a8-a166-59cad4ff4ee0",
+                    "id": "0616ed28-702b-4084-aca4-b7c8d1761c74",
                     "leftValue": "={{ $json.tipo }}",
                     "rightValue": "audio",
                     "operator": {
@@ -573,7 +573,7 @@
                 },
                 "conditions": [
                   {
-                    "id": "9c623bee-aac8-407a-9f36-d6feeb3c8a50",
+                    "id": "5474ab7f-14c9-459e-a27c-33b0ddc2946b",
                     "leftValue": "={{ $json.tipo }}",
                     "rightValue": "imagem",
                     "operator": {
@@ -597,7 +597,7 @@
                 },
                 "conditions": [
                   {
-                    "id": "cd75739d-3858-4deb-95f0-fb9faf17629e",
+                    "id": "99cf6aaf-210f-42e8-9726-fc88c9401173",
                     "leftValue": "={{ $json.tipo }}",
                     "rightValue": "documento",
                     "operator": {
@@ -623,7 +623,7 @@
         1260,
         140
       ],
-      "id": "b2622aa3-8243-4321-ab02-b2a912fa4832",
+      "id": "ef094bb2-6297-4c45-af00-be5344fa30cb",
       "name": "Router"
     },
     {
@@ -631,7 +631,7 @@
         "assignments": {
           "assignments": [
             {
-              "id": "0c1a3a36-5d5a-4d23-ab0c-fc4232cc1663",
+              "id": "33b4a453-a81a-4f92-a44b-cfc645039730",
               "name": "mensagemFinal",
               "value": "={{ $json.texto }}",
               "type": "string"
@@ -646,12 +646,21 @@
         1940,
         -160
       ],
-      "id": "6dd81474-46b1-4fd1-b70b-105c8576e72e",
+      "id": "5acc4323-b342-4d7f-9fda-4ac046085bcd",
       "name": "Msg Texto"
     },
     {
       "parameters": {
         "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.token }}"
+            }
+          ]
+        },
         "options": {
           "response": {
             "response": {
@@ -666,8 +675,21 @@
         1500,
         0
       ],
-      "id": "9f069094-ee55-4fb1-babd-8cb09725d9c4",
+      "id": "1a84a235-bc0a-4ed5-afa8-7752e2b850ed",
       "name": "Baixa Audio"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Whisper precisa da extensao no nome do arquivo\nfor (const item of $input.all()) {\n  item.binary.data.fileName = 'audio.ogg';\n  item.binary.data.fileExtension = 'ogg';\n  item.binary.data.mimeType = 'audio/ogg';\n}\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1610,
+        -120
+      ],
+      "id": "96c82c3b-b954-4a33-98f3-77b1c1af2ef7",
+      "name": "Ajusta Audio"
     },
     {
       "parameters": {
@@ -683,7 +705,7 @@
         1720,
         0
       ],
-      "id": "b02762f1-c7b1-43c5-bed8-5144542192c8",
+      "id": "d312cc5a-eefa-4923-b2cb-3e5ea3859972",
       "name": "Transcreve Audio",
       "credentials": {
         "openAiApi": {
@@ -698,7 +720,7 @@
         "assignments": {
           "assignments": [
             {
-              "id": "065c17be-3282-4cdd-ac37-6a73138e2431",
+              "id": "9225cf28-4bcf-4e32-aa4f-6f0e34d4e9ac",
               "name": "mensagemFinal",
               "value": "=[Áudio do cliente]: {{ $json.text || '(não consegui entender o áudio)' }}",
               "type": "string"
@@ -713,12 +735,21 @@
         1940,
         0
       ],
-      "id": "b30e0b23-454b-4fa0-842b-29450890155e",
+      "id": "63e1edc8-02fa-4400-ae91-4dec79907a50",
       "name": "Msg Audio"
     },
     {
       "parameters": {
         "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.token }}"
+            }
+          ]
+        },
         "options": {
           "response": {
             "response": {
@@ -733,7 +764,7 @@
         1500,
         160
       ],
-      "id": "9a709a30-f5fe-4613-a08f-43c512aca276",
+      "id": "17eb185a-1d28-4f87-b918-66875efb8aa7",
       "name": "Baixa Imagem"
     },
     {
@@ -758,7 +789,7 @@
         1720,
         160
       ],
-      "id": "d8746ca5-221e-4342-86f3-cffd62075907",
+      "id": "ac6bcb8f-cb52-4afc-9f51-5ac206a7d11c",
       "name": "Analisa Imagem",
       "credentials": {
         "openAiApi": {
@@ -773,9 +804,9 @@
         "assignments": {
           "assignments": [
             {
-              "id": "53b40c30-5d2c-4a26-af29-07193e79309e",
+              "id": "071aefe7-b778-45bc-89cd-727e670a5e16",
               "name": "mensagemFinal",
-              "value": "=[Imagem do cliente]: {{ $json.content || $json.text || '(não consegui ver a imagem)' }}{{ $('Normaliza Entrada').item.json.texto ? '\\nLegenda: ' + $('Normaliza Entrada').item.json.texto : '' }}",
+              "value": "=[Imagem do cliente]: {{ $json.content || $json.text || '(não consegui ver a imagem)' }}{{ $('Normaliza Entrada').first().json.texto ? '\\nLegenda: ' + $('Normaliza Entrada').first().json.texto : '' }}",
               "type": "string"
             }
           ]
@@ -788,12 +819,21 @@
         1940,
         160
       ],
-      "id": "ed2a41bd-6116-488d-8015-72c64e7776c5",
+      "id": "fe9f65a1-e0a3-4013-9b40-fdda20b12fd8",
       "name": "Msg Imagem"
     },
     {
       "parameters": {
         "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.token }}"
+            }
+          ]
+        },
         "options": {
           "response": {
             "response": {
@@ -808,7 +848,7 @@
         1500,
         320
       ],
-      "id": "d2f1906a-4f20-480f-a91d-1782c33c27e5",
+      "id": "b040ff50-d31f-4b08-b3b3-03f704e1d443",
       "name": "Baixa Documento"
     },
     {
@@ -822,7 +862,7 @@
         1720,
         320
       ],
-      "id": "dbd7e9bf-e5a2-49aa-a184-5814c30e1bb8",
+      "id": "bcfcfebb-48de-4f3b-9c08-c3549c740d8a",
       "name": "Le PDF",
       "onError": "continueRegularOutput"
     },
@@ -831,9 +871,9 @@
         "assignments": {
           "assignments": [
             {
-              "id": "d5f6e614-e43b-4eae-96ae-1d3ad3a216cd",
+              "id": "0204020a-8922-4dd5-9749-7800c37aa831",
               "name": "mensagemFinal",
-              "value": "=[Documento do cliente]: {{ ($json.text || '(não consegui ler o documento, só leio PDF)').slice(0, 6000) }}{{ $('Normaliza Entrada').item.json.texto ? '\\nLegenda: ' + $('Normaliza Entrada').item.json.texto : '' }}",
+              "value": "=[Documento do cliente]: {{ ($json.text || '(não consegui ler o documento, só leio PDF)').slice(0, 6000) }}{{ $('Normaliza Entrada').first().json.texto ? '\\nLegenda: ' + $('Normaliza Entrada').first().json.texto : '' }}",
               "type": "string"
             }
           ]
@@ -846,7 +886,7 @@
         1940,
         320
       ],
-      "id": "f83fbd14-f1e8-41ec-aeda-9dcb52c8c0a9",
+      "id": "04d8f8b9-2b94-4a35-a9a9-7236737788a1",
       "name": "Msg Documento"
     }
   ],
@@ -1046,6 +1086,17 @@
       ]
     },
     "Baixa Audio": {
+      "main": [
+        [
+          {
+            "node": "Ajusta Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ajusta Audio": {
       "main": [
         [
           {
